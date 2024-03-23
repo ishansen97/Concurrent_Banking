@@ -41,17 +41,17 @@ public class BankAccount {
 	}
 	
 	private synchronized boolean canDeposit(double amount) {
-		return (this.getBalance() > 0 && (amount > 0));
+		return (amount > 0);
 	}
 	
 	// withdraw method
 	public synchronized void withdraw(double amount) {
 		if (canWithdraw(amount)) {
-			this.setBalance(this.getBalance() - amount);;
-			System.out.println(Thread.currentThread().getName()+" has WITHDRAWN: " + amount + " from the account " +acctNo+", remaining amount: " + getBalance());
+			this.setBalance(this.getBalance() - amount);
+			System.out.println(Thread.currentThread().getName()+" has WITHDRAWN: Rs." + amount + " from the account " +acctNo+", remaining amount: Rs." + getBalance());
 		}
 		else {
-			System.out.println("Invalid amount tried to be withdrawn by " + Thread.currentThread().getName());
+			System.out.println("Invalid amount Rs." +amount+" tried to be withdrawn by " + Thread.currentThread().getName() + " on " + acctHolder + " account current balance " + this.getBalance());
 		}
 	}
 	
@@ -59,10 +59,10 @@ public class BankAccount {
 	public synchronized void deposit(double amount) {
 		if (canDeposit(amount)) {
 			this.setBalance(this.getBalance() + amount);;
-			System.out.println(Thread.currentThread().getName()+" has DEPOSITED: " + amount + " to the account " +acctNo+", remaining amount: " + getBalance());
+			System.out.println(Thread.currentThread().getName()+" has DEPOSITED: Rs." + amount + " to the account " +acctNo+", remaining amount: Rs." + getBalance());
 		}
 		else {
-			System.out.println("Invalid amount tried to be deposited by " + Thread.currentThread().getName());		
+			System.out.println("Invalid amount Rs." +amount+" tried to be deposited by " + Thread.currentThread().getName() + " on " + acctHolder + " account current balance " + this.getBalance());		
 		}
 	}
 	

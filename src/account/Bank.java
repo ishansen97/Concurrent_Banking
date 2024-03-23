@@ -26,8 +26,7 @@ public class Bank {
 	// bulk operation.
 	public static void depositInterestsToAccounts() {
 		for (BankAccount account : accounts.values()) {
-			int eligibleAmount = (int)account.getBalance();
-			int interestAmount = new Random().nextInt(0, eligibleAmount + 1);
+			int interestAmount = new Random().nextInt(-100, 2000);
 			account.deposit(interestAmount);
 		}
 	}
@@ -35,8 +34,7 @@ public class Bank {
 	
 	public static void withdrawInterestFromAccounts() {
 		for (BankAccount account : accounts.values()) {
-			int eligibleAmount = (int)account.getBalance();
-			int interestAmount = new Random().nextInt(0, eligibleAmount + 1);
+			int interestAmount = new Random().nextInt(-100, 2000);
 			account.withdraw(interestAmount);
 		}
 	}
