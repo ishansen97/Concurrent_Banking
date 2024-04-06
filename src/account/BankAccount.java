@@ -1,5 +1,8 @@
 package account;
 
+import exceptions.MoneyDepositException;
+import exceptions.MoneyWithdrawException;
+
 public class BankAccount {
 	private String acctNo;
 	private String acctHolder;
@@ -51,7 +54,29 @@ public class BankAccount {
 			System.out.println(Thread.currentThread().getName()+" has WITHDRAWN: Rs." + amount + " from the account " +acctNo+", remaining amount: Rs." + getBalance());
 		}
 		else {
-			System.out.println("Invalid amount Rs." +amount+" tried to be withdrawn by " + Thread.currentThread().getName() + " on " + acctHolder + " account current balance " + this.getBalance());
+			throw new IllegalArgumentException("Invalid amount Rs." +amount+" tried to be withdrawn by " + Thread.currentThread().getName() + " on account " + acctNo + ". Account current balance " + this.getBalance());
+		}
+	}
+	
+	// withdraw method (for transferring)
+	public synchronized void withdrawForTransfer(double amount) throws MoneyWithdrawException {
+		if (canWithdraw(amount)) {
+			this.setBalance(this.getBalance() - amount);
+			System.out.println(Thread.currentThread().getName()+" has WITHDRAWN (as part of transfer): Rs." + amount + " from the account " +acctNo+", remaining amount: Rs." + getBalance());
+		}
+		else {
+			throw new MoneyWithdrawException("/// Invalid amount Rs." +amount+" tried to be withdrawn by " + Thread.currentThread().getName() + " on account " + acctNo + " (as part of transfer). Account current balance " + this.getBalance());
+		}
+	}
+	
+	// withdraw tax amount
+	public synchronized void collectTax(double amount) {
+		if (canWithdraw(amount)) {
+			this.setBalance(this.getBalance() - amount);
+			System.out.println("#### " +Thread.currentThread().getName()+" has WITHDRAWN: Rs." + amount + " from the account " +acctNo+", as WITHHOLDING TAX. Remaining amount: Rs." + getBalance() + " ####");
+		}
+		else {
+			throw new IllegalArgumentException("#### " +"Invalid amount Rs." +amount+" tried to be withdrawn by " + Thread.currentThread().getName() + " on account " + acctNo + " as WITHHOLDING TAX. Account current balance " + this.getBalance() + " ####");
 		}
 	}
 	
@@ -62,12 +87,23 @@ public class BankAccount {
 			System.out.println(Thread.currentThread().getName()+" has DEPOSITED: Rs." + amount + " to the account " +acctNo+", remaining amount: Rs." + getBalance());
 		}
 		else {
-			System.out.println("Invalid amount Rs." +amount+" tried to be deposited by " + Thread.currentThread().getName() + " on " + acctHolder + " account current balance " + this.getBalance());		
+			throw new IllegalArgumentException("Invalid amount Rs." +amount+" tried to be deposited by " + Thread.currentThread().getName() + " on account " + acctNo + ". Account current balance " + this.getBalance());		
+		}
+	}
+	
+	// deposit method (after money transferring)
+	public synchronized void depositByTransfer(double amount) {
+		if (canDeposit(amount)) {
+			this.setBalance(this.getBalance() + amount);;
+			System.out.println(Thread.currentThread().getName()+" has DEPOSITED (as part of transfer): Rs." + amount + " to the account " +acctNo+", remaining amount: Rs." + getBalance());
+		}
+		else {
+			throw new IllegalArgumentException("&&& Invalid amount Rs." +amount+" tried to be deposited by " + Thread.currentThread().getName() + " on account " + acctNo + "(as part of transfer). Account current balance " + this.getBalance());		
 		}
 	}
 	
 	// check balance
 	public synchronized void checkBalance() {
-		System.out.println("The current balance checked by " +Thread.currentThread().getName()+" : " + getBalance());
+		System.out.println("The current balance checked by " +Thread.currentThread().getName()+" : Rs." + getBalance());
 	}
 }

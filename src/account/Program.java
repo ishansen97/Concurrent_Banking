@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.Random;
 
 public class Program {
-	private static Bank bank = new Bank();
+	private static Bank bank = new Bank(0.05);
 
 	public static void main(String[] args) {				
 		// clients
@@ -24,30 +24,36 @@ public class Program {
 			randomAction = new Random().nextInt(1,4);
 			Runnable runnable = new Client(clientName, account, ClientAction.fromInt(randomAction));
 			clientThreads[i] = new Thread(runnable, clientName);
-			
-			bank.withdrawInterest(acctNo);
-			// start the thread.
-			clientThreads[i].start();
 		}
 		
-		// interest charging
-		System.out.println("=============================");
-		System.out.println("Charging interests from all accounts.");
-		Bank.withdrawInterestFromAccounts();
-		System.out.println("=============================");
+		// run the individual threads
+		for (int i = 0; i < clientThreads.length; i++) {
+			Thread thread = clientThreads[i];
+			String acctNo = String.valueOf((i+1));
+			// start the client thread.
+			thread.start();
+			// bank withdraws amount from the individual account.
+			bank.collectWithholdingTax(acctNo);
+			// simultaneously, the bank transfers money from one account to another
+			int randomAcct = new Random().nextInt(0, 10);
+			// this condition ensures that the source and destination accounts are different.
+			if (randomAcct + 1 != (i+1)) {
+				Thread randomAcctThread = clientThreads[randomAcct];
+				int transferAmount = new Random().nextInt(100,2000);
+				bank.transferMoney(bank.getBankAccount(acctNo), bank.getBankAccount(String.valueOf(randomAcct+1)), transferAmount);
+			}
+			
+			// deposit monthly interest to the account.
+			Runnable monthlyInterestDepositor = new MonthlyInterest(bank.getBankAccount(acctNo), 0.12);
+			Thread monthlyInterestThread = new Thread(monthlyInterestDepositor, "Monthly Interest Calculator".toUpperCase());
+			monthlyInterestThread.start();
+		}
 		
-		// monthly interest deposition
-		System.out.println("=============================");
-		System.out.println("Depositing monthly interests to all accounts.");
-		Bank.depositInterestsToAccounts();
-		System.out.println("=============================");
-		
-		// running the thread group demo
-		ClientGroupDemo();
-		
+		// thread group demo
+		clientThreadGroupDemo();
 	}
 	
-	private static void ClientGroupDemo() {
+	private static void clientThreadGroupDemo() {
 		System.out.println("===== Thread Group Demo =====");
 		Bank threadGroupBank = new Bank();
 		ThreadGroup vipGroup = new ThreadGroup("VIP");
@@ -80,8 +86,6 @@ public class Program {
 			}
 			clientThreads[i] = clientThread;
 		}
-		
-		
 		
 		// running client threads.
 		for (Thread thread : clientThreads) {
